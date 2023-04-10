@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+   name: my-user-service
+   labels:
+      env: dev
+      owner: DmitryAvdonin
+spec:
+   selector:
+      project: adv
+   type: ClusterIP
+   ports:
+      - name: app-listener
+        protocol: TCP
+        port: 8000
+        targetPort: 8000
+ 

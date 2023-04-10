@@ -1,0 +1,14 @@
+apiVersion: v2
+name: user-service-chart
+description: Helm chart for user_service
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+   - golang
+   - dmitryavdonin
+
+maintainers:
+   - name: "Dmitry Avdonin"
+

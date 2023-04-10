@@ -1,0 +1,6 @@
+container:
+   image: postgres:latest
+   dbPort: 5432
+
+replicaCount: 1
+servicePort: 8000

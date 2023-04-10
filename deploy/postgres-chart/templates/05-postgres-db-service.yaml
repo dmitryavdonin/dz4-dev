@@ -1,0 +1,13 @@
+apiVersion: v1                                      # API version
+kind: Service                                       # Type of kubernetes resource 
+metadata:
+  name: {{ .Release.Name }}                          # Name of the resource
+  labels:                                           # Labels that will be applied to the resource
+    app: {{ .Release.Name }}
+spec:
+  type: NodePort
+  ports:
+    - port: {{ .Values.container.dbPort }}
+  selector:                                         # Selects any Pod with labels `app=fullstack-postgres,tier=postgres`
+    app: {{ .Release.Name }}
+    tier: postgres

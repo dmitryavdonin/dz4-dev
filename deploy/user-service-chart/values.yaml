@@ -1,0 +1,10 @@
+container:
+   image: dmitryavdonin/user_service:latest
+   port: 8000
+
+
+replicaCount: 2
+
+project: adv
+
+owner: DmitryAvdonin

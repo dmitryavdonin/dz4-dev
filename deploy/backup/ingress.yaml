@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+   name: my-user-service-ingress
+   annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.org/server-snippets: |
+      location /admin {
+         deny all;
+         return 403 "Go your own way, Stalker!";
+      }
+spec:
+   rules:
+      - host: "arch.homework"
+        http:
+           paths: 
+              - path: /user
+                pathType: Prefix
+                backend:
+                   service:
+                      name: my-user-service
+                      port: 
+                         number: 8000
+              - path: /healthcheck
+                pathType: Prefix
+                backend:
+                   service:
+                      name: my-user-service
+                      port: 
+                         number: 8000

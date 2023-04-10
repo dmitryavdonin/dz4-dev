@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+   name: user-service-deploy
+   labels:
+      app: user-service
+      env: dev
+      owner: DmitryAvdonin
+spec:
+   replicas: 1
+   selector:
+      matchLabels:
+         project: adv
+   template:
+      metadata:
+         labels:
+            project: adv
+      spec:
+         containers:
+            - name: user-service
+              image: dmitryavdonin/user_service_debug:latest
+              env:  
+                 - name: POSTGRES_HOST  
+                   valueFrom:  
+                      secretKeyRef:  
+                       name: user-service-secret
+                       key: postrges_host  
+                 - name: POSTGRES_USER  
+                   valueFrom:  
+                      secretKeyRef:  
+                         name: user-service-secret  
+                         key: postrges_user
+                 - name: POSTGRES_PASSWORD  
+                   valueFrom:  
+                      secretKeyRef:  
+                         name: user-service-secret  
+                         key: postrges_password
+                 - name: POSTGRES_DB  
+                   valueFrom:  
+                      secretKeyRef:  
+                         name: user-service-secret  
+                         key: postrges_db
+                 - name: POSTGRES_PORT
+                   valueFrom:  
+                      secretKeyRef:  
+                         name: user-service-secret  
+                         key: postrges_port
+                 - name: SERVICE_PORT
+                   valueFrom:  
+                      secretKeyRef:  
+                         name: user-service-secret  
+                         key: service_port
+
+              ports:
+                 - containerPort: 8000

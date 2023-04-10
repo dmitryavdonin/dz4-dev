@@ -1,0 +1,1 @@
+docker build -t migrate -f ./migrate/Dockerfile .

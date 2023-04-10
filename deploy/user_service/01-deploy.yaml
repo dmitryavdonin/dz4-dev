@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+   name: user-service-deploy
+   labels:
+      app: user-service
+      env: dev
+      owner: DmitryAvdonin
+spec:
+   replicas: 1
+   selector:
+      matchLabels:
+         project: adv
+   template:
+      metadata:
+         labels:
+            project: adv
+      spec:
+         containers:
+            - name: user-service
+              image: dmitryavdonin/user_service:latest
+              envFrom:
+                 - secretRef:
+                      name: postgres-secret
+              ports:
+                 - containerPort: 8000
