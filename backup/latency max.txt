@@ -1,0 +1,1 @@
+max(sum(rate(http_users_duration_seconds_bucket{status="success"}[1m])) by (le))

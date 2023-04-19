@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,11 +19,19 @@ type UserController struct {
 	DB *gorm.DB
 }
 
-var GetUsersLatency = prometheus.NewHistogramVec(
+var usersLatency = prometheus.NewHistogramVec(
 	prometheus.HistogramOpts{
-		Name:    "http_request_get_users_duration_seconds",
-		Help:    "Latency of get_users request in second.",
-		Buckets: prometheus.LinearBuckets(0.01, 0.05, 10),
+		Name: "http_users_duration_seconds",
+		Help: "Latency of get_users request in second.",
+		//Buckets: prometheus.LinearBuckets(0.01, 0.05, 10),
+	},
+	[]string{"status"},
+)
+
+var usersRequestCount = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "http_users_request_count",
+		Help: "Count of users request",
 	},
 	[]string{"status"},
 )
@@ -33,7 +42,56 @@ func NewUserController(DB *gorm.DB) UserController {
 
 func init() {
 
-	prometheus.MustRegister(GetUsersLatency)
+	prometheus.MustRegister(usersLatency)
+	prometheus.MustRegister(usersRequestCount)
+}
+
+// Get all users
+func (uc *UserController) FindUsers(ctx *gin.Context) {
+
+	// prepare metrics
+	var status string
+
+	timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
+		usersLatency.WithLabelValues(status).Observe(v)
+	}))
+	defer func() {
+		timer.ObserveDuration()
+	}()
+
+	/*
+		rand.Seed(time.Now().UnixNano())
+		min := 10
+		max := 1000
+		sleep := (int64)(rand.Intn(max-min+1) + min)
+
+		time.Sleep(time.Duration(sleep) * time.Millisecond)
+	*/
+
+	var page = ctx.DefaultQuery("page", "1")
+	var limit = ctx.DefaultQuery("limit", "10")
+
+	intPage, _ := strconv.Atoi(page)
+	intLimit, _ := strconv.Atoi(limit)
+	offset := (intPage - 1) * intLimit
+
+	var users []models.User
+	results := uc.DB.Limit(intLimit).Offset(offset).Find(&users)
+	if results.Error != nil {
+		status = "error"
+		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
+		return
+	}
+
+	if rand.Float32() > 0.80 {
+		status = "error"
+		ctx.JSON(http.StatusInternalServerError, gin.H{})
+	} else {
+		ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(users), "data": users})
+		status = "success"
+	}
+
+	usersRequestCount.WithLabelValues(status).Inc()
 }
 
 // Create User
@@ -112,35 +170,6 @@ func (uc *UserController) FindUserById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "data": user})
-}
-
-// Get all users
-func (uc *UserController) FindUsers(ctx *gin.Context) {
-
-	// prepare metrics
-	var status string
-	timer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
-		GetUsersLatency.WithLabelValues(status).Observe(v)
-	}))
-	defer func() {
-		timer.ObserveDuration()
-	}()
-
-	var page = ctx.DefaultQuery("page", "1")
-	var limit = ctx.DefaultQuery("limit", "10")
-
-	intPage, _ := strconv.Atoi(page)
-	intLimit, _ := strconv.Atoi(limit)
-	offset := (intPage - 1) * intLimit
-
-	var users []models.User
-	results := uc.DB.Limit(intLimit).Offset(offset).Find(&users)
-	if results.Error != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"status": "error", "message": results.Error})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "success", "results": len(users), "data": users})
 }
 
 // Delete User by ID
