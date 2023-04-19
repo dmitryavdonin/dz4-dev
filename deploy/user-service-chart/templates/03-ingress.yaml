@@ -28,3 +28,10 @@ spec:
                       name: {{ .Release.Name }}-srv
                       port: 
                          number: {{ .Values.container.port }}
+              - path: /metrics
+                pathType: Prefix
+                backend:
+                   service:
+                      name: {{ .Release.Name }}-srv
+                      port: 
+                         number: {{ .Values.container.port }}
