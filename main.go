@@ -38,7 +38,7 @@ func init() {
 func main() {
 	config, err := initializers.LoadFromEnv()
 	if err != nil {
-		log.Fatal("? Could not load environment variables", err)
+		log.Fatal("FAILED! Could not load environment variables", err)
 	}
 
 	corsConfig := cors.DefaultConfig()

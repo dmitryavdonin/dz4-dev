@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+data:
+  APP_PORT: "{{ .Values.deployment.port }}"
+  APP_SERVICE_NAME: {{ .Release.Name }}

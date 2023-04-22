@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+   name: {{ .Release.Name }}
+   labels:
+      app: {{ .Release.Name }}
+      env: dev
+      owner: {{ .Values.deployment.owner }}
+spec:
+   selector:
+      project: {{ .Values.deployment.project }}
+      app: {{ .Release.Name }}
+   type: ClusterIP
+   ports:
+      - name: {{ .Release.Name }}-listener
+        protocol: TCP
+        port: {{ .Values.deployment.port }}
+        targetPort: {{ .Values.deployment.port }}

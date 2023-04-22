@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "migration-job"
+  labels:
+  annotations:
+spec: 
+  template:
+    metadata:
+      name: "migration-job-pod"
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: db-migrations
+        image: dmitryavdonin/migrate:latest
+        envFrom:
+          - configMapRef:
+              name: user-service-config
+          - secretRef:
+              name: postgres-secret 
+        command: ["/usr/bin/migrate"]
