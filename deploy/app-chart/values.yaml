@@ -1,0 +1,57 @@
+deployment:
+  serviceName: "userservice"
+  replicaCount: "1"
+  project: adv
+  env: dev
+  owner: DmitryAvdonin
+  port: 8000
+  container:
+    image: dmitryavdonin/user_service:latest
+
+database:
+  host: app-postgresql
+  user: postgres
+  pass: manager
+  name: user_service
+  port: 5432
+
+postgresql:
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: 15.2.0-debian-11-r16
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+    debug: false
+  auth:
+    enablePostgresUser: true
+    postgresPassword: "manager"
+    username: "postgres"
+    password: "manager"
+    database: "user_service"
+  architecture: standalone
+  containerPorts:
+    postgresql: 5432
+
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false
+      serviceMonitorSelector: {}
+  prometheus-node-exporter:
+    hostRootFsMount: {
+      enabled: false
+    }
+
+ingress-nginx:
+  controller:
+    containerPort:
+      http: 8080
+      https: 8443
+    metrics:
+      enabled: true
+    podAnnotations: {
+      prometheus.io/scrape: "true",
+      prometheus.io/port : "10254",
+    }

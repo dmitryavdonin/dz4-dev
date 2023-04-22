@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.deployment.serviceName }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.serviceName }}
+  endpoints:
+    - port: "{{ .Values.deployment.port }}"
+      scrapeTimeout: 30s
+      path: /metrics
+      honorLabels: true
+      scheme: http
+  
