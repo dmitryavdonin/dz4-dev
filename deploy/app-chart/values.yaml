@@ -1,6 +1,5 @@
 deployment:
   replicaCount: "1"
-  project: adv
   env: dev
   owner: DmitryAvdonin
   port: 8000

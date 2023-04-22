@@ -1,11 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-   name: {{ .Release.Name }}
+   name: {{ .Release.Name }}-deploy
    labels:
       app: {{ .Release.Name }}
-      env: {{ .Values.deployment.env }}
-      owner: {{ .Values.deployment.owner }}
 spec:
    replicas: {{ .Values.deployment.replicaCount }}
    selector:
@@ -19,11 +17,12 @@ spec:
          containers:
             - name: {{ .Release.Name }}
               image: {{ .Values.deployment.container.image }} 
+              ports:
+                 - containerPort: {{ .Values.deployment.port }}              
               envFrom:
                  - configMapRef:
                      name: user-service-config
                  - secretRef:
                      name: postgres-secret
-              ports:
-                 - containerPort: {{ .Values.deployment.port }}
+              
 
